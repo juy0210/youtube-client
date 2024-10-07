@@ -96,11 +96,9 @@ const StyledHeader = styled.header`
 const Header = ({ onUpload, onSearch }) => {
   const navigate = useNavigate();
   const { token, logout } = useAuth();
-  const { theme, toggleTheme } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
-
-  // 처음 불러오는 시점 - 로그인 여부 체크
 
   const login = () => {
     // 로그인 페이지 이동

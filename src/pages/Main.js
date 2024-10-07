@@ -3,9 +3,12 @@ import { FaHouseChimney } from "react-icons/fa6";
 import { FaFolder } from "react-icons/fa";
 import { useOutletContext } from "react-router-dom";
 import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Detail from "./video/Detail";
 
 const Main = () => {
   const { videos, setPage, setMore } = useOutletContext();
+  const navigate = useNavigate();
 
   const scroll = () => {
     if (
@@ -14,6 +17,10 @@ const Main = () => {
     ) {
       setPage((page) => page + 1);
     }
+  };
+
+  const detail = (videoCode) => {
+    navigate(`/video/${videoCode}`);
   };
 
   useEffect(() => {
@@ -52,7 +59,10 @@ const Main = () => {
                 <img src={video.videoImg} />
                 <video src={video.videoUrl} controls></video>
               </div>
-              <div className="video-info">
+              <div
+                className="video-info"
+                onClick={() => detail(video.videoCode)}
+              >
                 <img src={video.channel.channelImg} />
                 <div className="video-desc">
                   <h2>{video.videoTitle}</h2>
