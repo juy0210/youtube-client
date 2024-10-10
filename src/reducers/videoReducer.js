@@ -11,12 +11,13 @@ export const fetchVideo = async (dispatch, videoCode) => {
   dispatch({ type: "FETCH_VIDEO", payload: response.data });
 };
 
-export const fetchVideos = async (dispatch) => {
+export const fetchVideos = async (dispatch, page, keyword) => {
   const response = await getVideos(page, keyword);
   dispatch({ type: "FETCH_VIDEOS", payload: response.data });
 };
 
 // fetchVideos - FETCH_VIDEOS
+
 export const videoReducer = (state, action) => {
   switch (action.type) {
     case "FETCH_VIDEO":

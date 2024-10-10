@@ -12,7 +12,6 @@ export const login = async (data) => {
   try {
     return await instance.post("login", data);
   } catch {
-    alert("로그인 실패!");
+    new Error("LOGIN FAIL");
   }
-
 };
