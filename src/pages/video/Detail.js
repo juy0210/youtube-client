@@ -14,18 +14,9 @@ import {
   subCount,
   fetchSub,
 } from "../../store/subscribeSlice";
-import {
-  initState as subscribeState,
-  subscribe,
-  unsubscribe,
-  subCount,
-  subscribeReducer,
-  fetchSub,
-} from "../../reducers/subscribeReducer";
 import { createComment, fetchComments } from "../../store/commentSlice";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
-import { addComment } from "../../api/comment";
 
 const Detail = () => {
   const { videoCode } = useParams();
@@ -37,6 +28,7 @@ const Detail = () => {
     videoCode: videoCode,
     id: id,
   });
+  const [isReply, setIsReply] = useState(false);
 
   // 리듀서 방식 - 리덕스 툴킷 사용하는 방식으로 변경해봐도 괜찮다
   // 실제 프로젝트에서는 하나로 통일해주세요! -> 만약 쓴다면 리덕스 툴킷 사용!
@@ -118,16 +110,11 @@ const Detail = () => {
           )}
           <div className="comment-list">
             {comments.map((comment) => (
-              <div className="comment-context">
-                <h4>{comment.id}</h4>
-                <p>{comment.commentText}</p>
-                <button>답글</button>
-                <input type="text" placeholder="답글 추가.." />
-                <div className="reply-add-status">
-                  <button>취소</button>
-                  <button>답글</button>
-                </div>
-              </div>
+              <comment
+                comment={comment}
+                videoCode={videoCode}
+                key={comment.commentCode}
+              />
             ))}
           </div>
         </div>

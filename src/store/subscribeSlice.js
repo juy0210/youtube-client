@@ -26,7 +26,7 @@ export const subCount = createAsyncThunk(
 );
 
 export const fetchSub = createAsyncThunk(
-  "subscribe/fetch",
+  "subscribe/fetchSub",
   async (channelCode) => {
     const response = await getSub(channelCode);
     return response.data;
@@ -43,13 +43,15 @@ const subscribeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(subscribe.fulfilled, (state) => {
+      .addCase(subscribe.fulfilled, (state, action) => {
+        state.sub = action.payload;
         state.isSub = true;
         state.count += 1; // state.count = state.count + 1;
       })
       .addCase(unsubscribe.fulfilled, (state) => {
         state.isSub = false;
         state.count -= 1;
+        state.sub = null;
       })
       .addCase(subCount.fulfilled, (state, action) => {
         state.count = action.payload;
