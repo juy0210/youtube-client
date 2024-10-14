@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useDispatch } from "react-redux";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  createComment,
-  modifyComment,
-  removeComment,
-} from "../store/commentSlice";
-import { updateComment } from "../api/comment";
+  addComment,
+  updateComment,
+  deleteComment as deleteComment,
+} from "../api/comment";
 
 const Comment = ({ comment, videoCode }) => {
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const { id } = useAuth();
   const [newReply, setNewReply] = useState({
     commentCode: 0,
@@ -18,77 +17,100 @@ const Comment = ({ comment, videoCode }) => {
     id: id,
     parentCode: 0,
   });
-  // 댓글 수정
-  const [isEdit, setIsEdit] = useState(false);
+
+  const editMutation = useMutation({
+    mutationFn: addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", videoCode] });
+    },
+  });
+
+  const delMutation = useMutation({
+    mutationFn: addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", videoCode] });
+    },
+  });
 
   // 대댓글 추가
   const addReply = () => {
-    dispatch(createComment(newReply));
+    addMutation.mutate(newReply);
     setNewReply({ ...newReply, commentText: "", parentCode: 0 });
   };
 
   // 댓글 삭제
   const deleteComment = (commentCode) => {
-    dispatch(removeComment({ videoCode, commentCode })); // 명칭이 동일하면 생략 가능
+    delMutation.mutate({ commentCode });
   };
 
   // 댓글 수정 - id가 작성자 본인일 경우 수정 가능하게
-  const edit = (commentId, commentText) => {
+  const edit = (commentId, commentText, commentCode) => {
     if (id === commentId) {
-      setIsEdit(true);
-      setNewReply({ ...newReply, commentText });
+      setNewReply({ ...newReply, commentText, commentCode });
     }
   };
 
   const editCancle = () => {
-    setIsEdit(false);
     setNewReply({ ...newReply, commentText: "", commentCode: 0 });
   };
 
   const editSubmit = () => {
     dispatch(modifyComment(newReply));
+    editMutation.mutate(newReply);
     editCancle();
   };
 
   return (
     <div className="comment-context">
-      <h4>{comment.id}</h4>
-      {isEdit ? (
+      {comment.delete ? (
+        <p>삭제된 댓글입니다..</p>
+      ) : (
         <>
-          <input
-            type="text"
-            value={newReply.commentText}
-            onChange={(e) =>
+          {" "}
+          <h4>{comment.id}</h4>
+          {newReply.commentCode === comment.commentCode ? (
+            <>
+              <input
+                type="text"
+                value={newReply.commentText}
+                onChange={(e) =>
+                  setNewReply({
+                    ...newReply,
+                    commentText: e.target.value,
+                  })
+                }
+              />
+              <div className="edit-content">
+                <button onClick={editCancle}>취소</button>
+                <button onClick={editSubmit}>수정</button>
+              </div>
+            </>
+          ) : (
+            <p
+              onClick={() =>
+                edit(comment.id, comment.commentText, comment.commentCode)
+              }
+            >
+              {comment.commentText}
+            </p>
+          )}
+          <button
+            onClick={() =>
               setNewReply({
                 ...newReply,
-                commentText: e.target.value,
-                commentCode: comment.commentCode,
+                parentCode: comment.commentCode,
               })
             }
-          />
-          <div className="edit-content">
-            <button onClick={editCancle}>취소</button>
-            <button onClick={editSubmit}>수정</button>
-          </div>
+          >
+            답글
+          </button>
+          /* 댓글 작성자 본인인 경우에 삭제 */
+          {id === comment.id && (
+            <button onClick={() => deleteComment(comment.commentCode)}>
+              삭제
+            </button>
+          )}
         </>
-      ) : (
-        <p onClick={() => edit(comment.id, comment.commentText)}>
-          {comment.commentText}
-        </p>
-      )}
-      <button
-        onClick={() =>
-          setNewReply({
-            ...newReply,
-            parentCode: comment.commentCode,
-          })
-        }
-      >
-        답글
-      </button>
-      /* 댓글 작성자 본인인 경우에 삭제 */
-      {id === comment.id && (
-        <button onClick={() => deleteComment(comment.commentCode)}>삭제</button>
       )}
       {newReply.parentCode === comment.commentCode && (
         <>
