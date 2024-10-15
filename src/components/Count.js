@@ -2,6 +2,7 @@ import { useState, useReducer } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { increase, decrease } from "../store/countSlice";
+import { countReducer, initState } from "../reducers/countReducer";
 
 const StyledDiv = styled.div`
   margin: 20px;
@@ -28,6 +29,7 @@ const Count = () => {
   const Count = () => {
     // useDispatch : 컴포넌트에서 리덕스 액션을 보낼 수 있게 해주는 훅
     const dispatch = useDispatch();
+
     // useSelector : 리덕스 스토어에서 상태를 가져오는 훅
     const count = useSelector((state) => state.count.count);
   };

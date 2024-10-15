@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addComment,
   updateComment,
-  deleteComment as deleteComment,
+  deleteComment as delComment,
 } from "../api/comment";
 
 const Comment = ({ comment, videoCode }) => {
@@ -18,15 +18,22 @@ const Comment = ({ comment, videoCode }) => {
     parentCode: 0,
   });
 
-  const editMutation = useMutation({
+  const addMutation = useMutation({
     mutationFn: addComment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", videoCode] });
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: updateComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", videoCode] });
+    },
+  });
+
   const delMutation = useMutation({
-    mutationFn: addComment,
+    mutationFn: delComment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", videoCode] });
     },
@@ -37,13 +44,9 @@ const Comment = ({ comment, videoCode }) => {
     addMutation.mutate(newReply);
     setNewReply({ ...newReply, commentText: "", parentCode: 0 });
   };
-
-  // 댓글 삭제
   const deleteComment = (commentCode) => {
-    delMutation.mutate({ commentCode });
+    delMutation.mutate(commentCode);
   };
-
-  // 댓글 수정 - id가 작성자 본인일 경우 수정 가능하게
   const edit = (commentId, commentText, commentCode) => {
     if (id === commentId) {
       setNewReply({ ...newReply, commentText, commentCode });
@@ -55,13 +58,12 @@ const Comment = ({ comment, videoCode }) => {
   };
 
   const editSubmit = () => {
-    dispatch(modifyComment(newReply));
     editMutation.mutate(newReply);
     editCancle();
   };
 
   return (
-    <div className="comment-context">
+    <div className="comment-content">
       {comment.delete ? (
         <p>삭제된 댓글입니다..</p>
       ) : (
@@ -104,7 +106,6 @@ const Comment = ({ comment, videoCode }) => {
           >
             답글
           </button>
-          /* 댓글 작성자 본인인 경우에 삭제 */
           {id === comment.id && (
             <button onClick={() => deleteComment(comment.commentCode)}>
               삭제
@@ -112,13 +113,14 @@ const Comment = ({ comment, videoCode }) => {
           )}
         </>
       )}
+
       {newReply.parentCode === comment.commentCode && (
         <>
           <input
             type="text"
             placeholder="답글 추가.."
             value={newReply.commentText}
-            onChange={() =>
+            onChange={(e) =>
               setNewReply({
                 ...newReply,
                 commentText: e.target.value,
@@ -151,3 +153,4 @@ const Comment = ({ comment, videoCode }) => {
     </div>
   );
 };
+export default Comment;

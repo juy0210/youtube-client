@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [id, setId] = useState(localStorage.getItem("id"));
 
   // 로그인 기능 : 토큰 저장
-  const login = (token) => {
+  const login = (data) => {
     localStorage.setItem("token", data.token);
     localStorage.setItem("id", data.id);
     setToken(data.token);
